@@ -1,0 +1,49 @@
+# Via server. Quick start:
+#   docker compose up -d
+#   docker compose exec via via create-user alice --admin
+#
+# For TLS, uncomment the caddy service (and edit Caddyfile) or put Via behind your own
+# reverse proxy. The proxy must not buffer responses, or live updates (SSE) won't arrive.
+
+services:
+  via:
+    image: via-server:latest
+    build: .
+    restart: unless-stopped
+    # Reachable directly on port 8080. Behind the caddy service below, remove this `ports`
+    # section so that only the proxy can reach Via.
+    ports:
+      - "8080:8080"
+    volumes:
+      - via-data:/data
+    environment:
+      # Everything is optional; see README.md for all settings.
+      VIA_SIGNUP: invite          # closed | invite | open
+      VIA_DEFAULT_TTL: 7d
+      VIA_MAX_FILE_SIZE: 100MiB
+      VIA_USER_QUOTA: 1GiB
+      # Behind a reverse proxy, trust its X-Forwarded-For so rate limits see real client IPs.
+      # Only do this when clients can't reach Via directly (no `ports` above), or anyone
+      # could fake the header and dodge the login rate limit. Use the proxy's address, or
+      # "*" when the proxy is the only thing that can reach Via:
+      # VIA_FORWARDED_ALLOW_IPS: "*"
+      # First start only: create this admin if the server has no users yet.
+      # VIA_ADMIN_USERNAME: admin
+      # VIA_ADMIN_PASSWORD: change-me-please
+      # The master key encrypts everything at rest. If unset, one is generated into
+      # /data/master.key; back it up either way.
+      # VIA_MASTER_KEY_FILE: /run/secrets/via_master_key
+
+  # caddy:
+  #   image: caddy:2
+  #   restart: unless-stopped
+  #   ports:
+  #     - "80:80"
+  #     - "443:443"
+  #   volumes:
+  #     - ./Caddyfile:/etc/caddy/Caddyfile:ro
+  #     - caddy-data:/data
+
+volumes:
+  via-data:
+  # caddy-data:

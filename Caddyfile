@@ -1,0 +1,6 @@
+via.example.com {
+	reverse_proxy via:8080 {
+		# Stream server-sent events immediately.
+		flush_interval -1
+	}
+}
