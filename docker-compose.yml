@@ -1,14 +1,18 @@
-# Via server. Quick start:
+# Via server. Quick start (no clone needed):
+#   curl -O https://raw.githubusercontent.com/eitchtee/Via/main/docker-compose.yml
 #   docker compose up -d
 #   docker compose exec via via create-user alice --admin
+#
+# Tags: latest (newest release), vX.Y.Z (a release), nightly (main, may be unstable).
+# To build from a source checkout instead, comment out `image:` and uncomment `build: .`.
 #
 # For TLS, uncomment the caddy service (and edit Caddyfile) or put Via behind your own
 # reverse proxy. The proxy must not buffer responses, or live updates (SSE) won't arrive.
 
 services:
   via:
-    image: via-server:latest
-    build: .
+    image: ghcr.io/eitchtee/via:latest
+    # build: .
     restart: unless-stopped
     # Reachable directly on port 8080. Behind the caddy service below, remove this `ports`
     # section so that only the proxy can reach Via.

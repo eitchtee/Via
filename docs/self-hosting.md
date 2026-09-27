@@ -7,13 +7,14 @@ directory (`via.lock`), so a second server pointed at the same data refuses to s
 ## 1. Install
 
 ```sh
-git clone <this repository> via && cd via
+mkdir via && cd via
+curl -O https://raw.githubusercontent.com/eitchtee/Via/main/docker-compose.yml
 docker compose up -d
 docker compose exec via via create-user alice --admin
 ```
 
-This builds the image locally. To use a prebuilt one instead, replace `build: .` in
-`docker-compose.yml` with the published image (see [Images](#images)).
+This runs the published image (see [Images](#images)). To build from source instead, clone
+the repository, and in `docker-compose.yml` comment out `image:` and uncomment `build: .`.
 
 Open `http://<host>:8080` and sign in. The web UI manages devices, contacts and app tokens,
 sends items, and (for admins) manages users and invites.
@@ -97,7 +98,8 @@ entrypoint if large uploads time out.
 
 ## 4. Android push notifications
 
-The official Android app is woken up through the **Via FCM relay** (a separate project). Set
+The official Android app is woken up through the
+**[Via FCM relay](https://github.com/eitchtee/ViaFCMRelay)** (a separate project). Set
 `VIA_PUSH_RELAY_URL` to the relay the app's publisher runs, plus `VIA_PUSH_RELAY_KEY` if they
 gave you an instance key. The relay only ever receives the device's FCM token and an item id,
 never content.
@@ -148,13 +150,17 @@ and contacts, plus whatever is still waiting to be delivered.
 ## Images
 
 Prebuilt images for `linux/amd64` and `linux/arm64` are published to GitHub Container
-Registry as `ghcr.io/<owner>/<repo>` by `.github/workflows/docker.yml`:
+Registry as [`ghcr.io/eitchtee/via`](https://github.com/eitchtee/Via/pkgs/container/via)
+by `.github/workflows/docker.yml`:
 
 | Tag | What |
 |---|---|
 | `latest` | The latest release |
 | `v1.2.3` (a release tag) | That release |
 | `nightly` | The newest commit on `main`; may be unstable |
+
+`latest` follows new releases on `docker compose pull`. To upgrade only when you choose, pin a
+release instead: `image: ghcr.io/eitchtee/via:v0.1.0`.
 
 Maintainers can also run the workflow by hand (Actions → Docker image → Run workflow) with a
 branch or release tag, and optionally a custom image tag. `latest` only moves when the build
@@ -164,8 +170,8 @@ by hand, never changes it.
 ## 7. Upgrades
 
 ```sh
-git pull && docker compose up -d --build        # building locally
-docker compose pull && docker compose up -d     # using a published image
+docker compose pull && docker compose up -d     # published image
+git pull && docker compose up -d --build        # building from source
 ```
 
 Database migrations run automatically at startup. Take a backup before upgrading across

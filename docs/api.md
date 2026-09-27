@@ -81,7 +81,7 @@ Pick what suits the platform. All of these only tell you to fetch; none carries 
   `PUT /v1/devices/me/push` `{"provider": "unifiedpush", "endpoint": "<url>"}`. Via POSTs
   `{"t": "wake", "id": "<push id>"}` to the endpoint.
 - **FCM** (official Android app): `PUT /v1/devices/me/push`
-  `{"provider": "fcm_relay", "token": "<fcm token>"}`. The server asks the Via FCM relay to
+  `{"provider": "fcm_relay", "token": "<fcm token>"}`. The server asks the [Via FCM relay](https://github.com/eitchtee/ViaFCMRelay) to
   send a data-only message `{"t": "wake", "id": "<push id>"}`. Check `features.fcm_relay`
   first.
 - **Polling**: always works. Also fetch on app start and on network changes.

@@ -33,9 +33,12 @@ desktop, browser extension, CLI) are separate and use only the [documented API](
 ## Quick start (Docker)
 
 ```sh
+curl -O https://raw.githubusercontent.com/eitchtee/Via/main/docker-compose.yml
 docker compose up -d
 docker compose exec via via create-user alice --admin
 ```
+
+This runs the published image `ghcr.io/eitchtee/via:latest` (amd64 and arm64).
 
 Then open `http://localhost:8080` and sign in. Put the server behind a TLS reverse proxy for
 anything beyond your LAN; the proxy must not buffer responses, or live updates arrive late.
@@ -93,7 +96,7 @@ accept seconds or `30m`, `7d`, `1h30m`.
 | `VIA_MAX_FILE_SIZE` | `100MiB` | |
 | `VIA_USER_QUOTA` | `1GiB` | Stored files per user |
 | `VIA_MAX_TEXT_LENGTH` | `262144` | Characters per note/title/url |
-| `VIA_PUSH_RELAY_URL` | empty (off) | Via FCM relay for Android wake-ups |
+| `VIA_PUSH_RELAY_URL` | empty (off) | [Via FCM relay](https://github.com/eitchtee/ViaFCMRelay) for Android wake-ups |
 | `VIA_PUSH_RELAY_KEY` | | Optional relay instance key (`X-Via-Instance-Key`), for higher relay limits |
 | `VIA_LOGIN_RATE_PER_MINUTE` | `10` | Per IP, for login and register |
 | `VIA_PUSH_RATE_PER_MINUTE` | `120` | Per user |
