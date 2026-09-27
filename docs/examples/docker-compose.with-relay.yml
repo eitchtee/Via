@@ -1,0 +1,49 @@
+# Via together with its own FCM relay, in one compose project.
+#
+# Only needed if you build the Android app with your own Firebase project: the relay can only
+# wake apps built with the same project as its service account key. With the official app,
+# point VIA_PUSH_RELAY_URL at the official relay instead and skip the relay service.
+#
+# Setup, in an empty directory:
+#   1. Save this file as docker-compose.yml.
+#   2. Save the Firebase service account key (Firebase console > Project settings >
+#      Service accounts > Generate new private key) as service-account.json.
+#   3. Create a .env file with a random key that Via uses to identify itself to the relay:
+#        echo "RELAY_INSTANCE_KEY=$(openssl rand -hex 32)" > .env
+#   4. docker compose up -d
+#      docker compose exec via via create-user alice --admin
+#
+# The relay has no published port: only Via can reach it, over the compose network.
+# Put Via behind a TLS reverse proxy for anything beyond your LAN (see docs/self-hosting.md).
+
+services:
+  via:
+    image: ghcr.io/eitchtee/via:latest
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    volumes:
+      - via-data:/data
+    environment:
+      VIA_SIGNUP: invite
+      # Wake Android devices through the relay below.
+      VIA_PUSH_RELAY_URL: http://relay:8090
+      VIA_PUSH_RELAY_KEY: ${RELAY_INSTANCE_KEY:?set RELAY_INSTANCE_KEY in .env}
+    depends_on:
+      - relay
+
+  relay:
+    image: ghcr.io/eitchtee/viafcmrelay:latest
+    restart: unless-stopped
+    volumes:
+      - ./service-account.json:/run/secrets/fcm.json:ro
+    environment:
+      VIA_RELAY_CREDENTIALS_FILE: /run/secrets/fcm.json
+      # Via presents this key, so it gets the per-key limits instead of the anonymous
+      # per-IP ones (which would be shared by everything behind the same address).
+      VIA_RELAY_INSTANCE_KEYS: ${RELAY_INSTANCE_KEY:?set RELAY_INSTANCE_KEY in .env}
+      # Uncomment to have FCM validate wake-ups without delivering them.
+      # VIA_RELAY_DRY_RUN: "true"
+
+volumes:
+  via-data:

@@ -104,6 +104,11 @@ The official Android app is woken up through the
 gave you an instance key. The relay only ever receives the device's FCM token and an item id,
 never content.
 
+To run your own relay (needed if you build the Android app with your own Firebase project),
+[`examples/docker-compose.with-relay.yml`](examples/docker-compose.with-relay.yml) sets up
+Via and the relay together: the relay stays private on the compose network, and Via
+authenticates to it with an instance key.
+
 Without a relay, Android clients can use UnifiedPush (e.g. with ntfy as a distributor) or
 periodic sync.
 
